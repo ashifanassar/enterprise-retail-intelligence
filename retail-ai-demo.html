@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Retail AI Platform Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #132033;
+      --muted: #6d7582;
+      --line: #dde3ea;
+      --panel: #ffffff;
+      --page: #f6f8fb;
+      --brand: #112033;
+      --accent: #4f46e5;
+      --ok: #2f9d65;
+      --ok-bg: #eaf6df;
+      --chip: #eef1f5;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--page);
+    }
+
+    header {
+      min-height: 92px;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--brand);
+      color: white;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .sub {
+      margin-top: 5px;
+      color: #aab7c7;
+      font-size: 13px;
+    }
+
+    .status {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      color: #c8f5d9;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #28d17c;
+    }
+
+    main {
+      padding: 18px 28px 28px;
+    }
+
+    .searchbar {
+      display: grid;
+      grid-template-columns: 1fr 92px;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    input {
+      width: 100%;
+      height: 42px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #9aa8ff;
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+    }
+
+    button {
+      height: 42px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--brand);
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      width: 56px;
+      background: var(--accent);
+    }
+
+    button:disabled {
+      opacity: 0.58;
+      cursor: not-allowed;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      height: 27px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--chip);
+      color: #394355;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      border-top: 1px solid var(--line);
+      padding-top: 20px;
+    }
+
+    section {
+      min-height: 510px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .section-head {
+      min-height: 52px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #edf0f4;
+      font-weight: 700;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #eaf4fd;
+      color: #426989;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .pill.purple {
+      background: #f0ebff;
+      color: #6750a4;
+    }
+
+    .content {
+      padding: 14px;
+    }
+
+    .product {
+      min-height: 80px;
+      padding: 14px 13px;
+      border: 1px solid #e2e7ee;
+      border-radius: 8px;
+      background: #fafbfc;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .title {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .price {
+      margin-top: 7px;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .stock {
+      height: 22px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: #eef8e5;
+      color: #3f7a37;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .guard {
+      margin-top: 24px;
+      padding: 10px 12px;
+      border-radius: 7px;
+      background: var(--ok-bg);
+      color: #3b7130;
+      font-size: 12px;
+    }
+
+    .chat-note {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 12px 0 14px;
+    }
+
+    .chatbar {
+      display: grid;
+      grid-template-columns: 1fr 56px;
+      gap: 8px;
+    }
+
+    .answer {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid #e1e7ef;
+      border-radius: 8px;
+      background: #fbfcfe;
+      color: #273142;
+      font-size: 14px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 4px 2px;
+    }
+
+    @media (max-width: 820px) {
+      header {
+        align-items: flex-start;
+        gap: 12px;
+        flex-direction: column;
+      }
+
+      main { padding: 14px; }
+
+      .searchbar,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Retail AI Platform</h1>
+      <div class="sub">AI-powered product discovery · Vertex AI Search + Gemini 2.5 Flash</div>
+    </div>
+    <div class="status"><span class="dot"></span><span id="apiStatus">Checking API</span></div>
+  </header>
+
+  <main>
+    <div class="searchbar">
+      <input id="query" value="red dress for wedding" aria-label="Search query" />
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <div class="chips">
+      <span class="chip">warm outfit for winter wedding</span>
+      <span class="chip">formal blazer under 3000</span>
+      <span class="chip">casual cotton top</span>
+      <span class="chip">black party dress</span>
+    </div>
+
+    <div class="grid">
+      <section>
+        <div class="section-head">
+          <span>🔍 /search — Vertex AI Search</span>
+          <span class="pill" id="searchMeta">0 found · 0ms</span>
+        </div>
+        <div class="content">
+          <div id="results" class="empty">Run a search to see in-stock products.</div>
+          <div class="guard">✅ Guardrail G1 active — zero-stock products removed before response</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <span>🤖 /agent — LangGraph Multi-Agent</span>
+          <span class="pill purple">Grounded on BigQuery</span>
+        </div>
+        <div class="content">
+          <div class="chat-note">Search complete — ask a follow-up question...</div>
+          <div class="chatbar">
+            <input id="chatQuery" value="suggest me the best option under ₹4000" aria-label="Chat query" />
+            <button id="chatBtn" class="secondary">Ask</button>
+          </div>
+          <div class="guard">✅ Gemini checks live BigQuery inventory before answering — no hallucination</div>
+          <div id="answer" class="answer" hidden></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = "https://retail-ai-platform-gateway-d9qs4nyq.uc.gateway.dev";
+    const API_KEY = "retail-ai-mvp-secret-2026";
+    const ID_TOKEN = "";
+
+    const headers = () => {
+      const h = {
+        "Content-Type": "application/json",
+        "X-API-Key": API_KEY
+      };
+      if (ID_TOKEN) h.Authorization = `Bearer ${ID_TOKEN}`;
+      return h;
+    };
+
+    const rupee = value => {
+      const number = Number(value || 0);
+      return `₹${Math.round(number).toLocaleString("en-IN")}`;
+    };
+
+    const productHtml = product => `
+      <div class="product">
+        <div>
+          <div class="title">${product.title || product.sku_id || "Untitled product"}</div>
+          <div class="meta">${product.brand || "Brand"} · ${product.category || "Category"}</div>
+          <div class="price">${rupee(product.price)}</div>
+        </div>
+        <div class="stock">In stock · ${product.inventory_count || 0}</div>
+      </div>
+    `;
+
+    async function health() {
+      try {
+        const res = await fetch(`${API_BASE}/health`, { headers: ID_TOKEN ? { Authorization: `Bearer ${ID_TOKEN}` } : {} });
+        document.getElementById("apiStatus").textContent = res.ok ? "Live API" : "API needs auth";
+      } catch {
+        document.getElementById("apiStatus").textContent = "API unavailable";
+      }
+    }
+
+    async function search() {
+      const btn = document.getElementById("searchBtn");
+      const results = document.getElementById("results");
+      const query = document.getElementById("query").value.trim();
+      if (!query) return;
+
+      btn.disabled = true;
+      results.className = "empty";
+      results.textContent = "Searching...";
+
+      try {
+        const res = await fetch(`${API_BASE}/search`, {
+          method: "POST",
+          headers: headers(),
+          body: JSON.stringify({ query: `${document.getElementById("query").value}. ${query}` })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        const products = data.results || [];
+        document.getElementById("searchMeta").textContent = `${data.total_found || products.length} found · ${data.latency_ms || 0}ms`;
+        results.className = "";
+        results.innerHTML = products.length ? products.map(productHtml).join("") : "<div class='empty'>No in-stock products found.</div>";
+      } catch (err) {
+        results.className = "empty";
+        results.textContent = `Search failed: ${err.message}`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function chat() {
+      const btn = document.getElementById("chatBtn");
+      const answer = document.getElementById("answer");
+      const query = document.getElementById("chatQuery").value.trim();
+      if (!query) return;
+
+      btn.disabled = true;
+      answer.hidden = false;
+      answer.textContent = "Routing through agents...";
+
+        try {
+    const res = await fetch(`${API_BASE}/agent`, {
+      method: "POST",
+      headers: headers(),
+      body: JSON.stringify({
+        session_id: "demo-session",
+        query
+      })
+    });
+           if (!res.ok) throw new Error(await res.text());
+
+    const data = await res.json();
+
+    answer.textContent =
+      `${data.response}\n\n` +
+      `intent=${data.intent}` +
+      ` · action=${data.action || "none"}` +
+      ` · risk_score=${data.risk_score || 0}` +
+      ` · hitl_required=${data.hitl_required || false}` +
+      ` · pii_detected=${data.pii_detected || false}`;
+
+  } catch (err) {
+    answer.textContent = `Agent failed: ${err.message}`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+    document.getElementById("searchBtn").addEventListener("click", search);
+    document.getElementById("chatBtn").addEventListener("click", chat);
+    document.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        document.getElementById("query").value = chip.textContent;
+        search();
+      });
+    });
+
+    health();
+  </script>
+</body>
+</html>

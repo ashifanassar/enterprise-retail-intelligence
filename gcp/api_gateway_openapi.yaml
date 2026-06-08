@@ -1,0 +1,222 @@
+swagger: "2.0"
+info:
+  title: Retail AI Platform API
+  description: API Gateway facade for the Retail AI Cloud Run service.
+  version: "1.0.0"
+schemes:
+  - https
+produces:
+  - application/json
+consumes:
+  - application/json
+x-google-backend:
+  address: https://retail-ai-api-1039944541778.us-central1.run.app
+
+paths:
+  /health:
+    options:
+      operationId: optionsHealth
+      responses:
+        "200":
+          description: CORS
+    get:
+      operationId: health
+      responses:
+        "200":
+          description: OK
+
+  /search:
+    options:
+      operationId: optionsSearch
+      responses:
+        "200":
+          description: CORS
+    post:
+      operationId: searchProducts
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/SearchRequest"
+      responses:
+        "200":
+          description: OK
+
+  /chat:
+    options:
+      operationId: optionsChat
+      responses:
+        "200":
+          description: CORS
+    post:
+      operationId: chat
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/SearchRequest"
+      responses:
+        "200":
+          description: OK
+
+  /agent:
+    options:
+      operationId: optionsAgent
+      responses:
+        "200":
+          description: CORS
+    post:
+      operationId: agent
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/SearchRequest"
+      responses:
+        "200":
+          description: OK
+
+  /hitl/pending:
+    options:
+      operationId: optionsHitlPending
+      responses:
+        "200":
+          description: CORS
+    get:
+      operationId: listHitlPending
+      responses:
+        "200":
+          description: OK
+
+  /hitl/config:
+    options:
+      operationId: optionsHitlConfig
+      responses:
+        "200":
+          description: CORS
+    get:
+      operationId: getHitlConfig
+      responses:
+        "200":
+          description: OK
+
+  /hitl/{escalation_id}:
+    options:
+      operationId: optionsHitlEscalation
+      parameters:
+        - in: path
+          name: escalation_id
+          required: true
+          type: string
+      responses:
+        "200":
+          description: CORS
+    get:
+      operationId: getHitlEscalation
+      parameters:
+        - in: path
+          name: escalation_id
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not found
+
+  /hitl/{escalation_id}/approve:
+    options:
+      operationId: optionsApproveHitlEscalation
+      parameters:
+        - in: path
+          name: escalation_id
+          required: true
+          type: string
+      responses:
+        "200":
+          description: CORS
+    post:
+      operationId: approveHitlEscalation
+      parameters:
+        - in: path
+          name: escalation_id
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/HitlDecisionRequest"
+      responses:
+        "200":
+          description: OK
+
+  /hitl/{escalation_id}/reject:
+    options:
+      operationId: optionsRejectHitlEscalation
+      parameters:
+        - in: path
+          name: escalation_id
+          required: true
+          type: string
+      responses:
+        "200":
+          description: CORS
+    post:
+      operationId: rejectHitlEscalation
+      parameters:
+        - in: path
+          name: escalation_id
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/HitlDecisionRequest"
+      responses:
+        "200":
+          description: OK
+
+  /session/{session_id}:
+    options:
+      operationId: optionsDeleteSession
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          type: string
+      responses:
+        "200":
+          description: CORS
+    delete:
+      operationId: deleteSession
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+
+definitions:
+  SearchRequest:
+    type: object
+    required:
+      - query
+    properties:
+      query:
+        type: string
+      session_id:
+        type: string
+
+  HitlDecisionRequest:
+    type: object
+    properties:
+      reviewer:
+        type: string
+        default: demo-reviewer

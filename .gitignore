@@ -1,0 +1,15 @@
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.zip
+firebase-debug.log
+public/
+deployment_bundle_*/
+model-armor-session-patch_*/
+agents_files_bundle.sh
+catalog.jsonl
+phase0_catalog_500_generated.png
+hitl-admin-old.html

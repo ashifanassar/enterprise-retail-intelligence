@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>HITL Review Console</title>
+  <style>
+    body { margin:0; font-family:Arial,sans-serif; background:#f4f7fb; color:#0f172a; }
+    header { background:#0f1f33; color:white; padding:24px 32px; display:flex; justify-content:space-between; align-items:center; }
+    h1 { margin:0; font-size:24px; }
+    header p { margin:6px 0 0; color:#cbd5e1; }
+    .pill { background:#1e293b; padding:10px 14px; border-radius:999px; font-weight:700; }
+    main { padding:24px; }
+    .toolbar { display:grid; grid-template-columns:1fr 220px auto; gap:12px; margin-bottom:20px; }
+    input { padding:12px; border:1px solid #dbe3ef; border-radius:8px; font-size:15px; }
+    button { border:0; border-radius:8px; padding:12px 16px; background:#4f46e5; color:white; font-weight:700; cursor:pointer; }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    .grid { display:grid; grid-template-columns:420px 1fr; gap:18px; }
+    .panel { background:white; border:1px solid #dbe3ef; border-radius:10px; overflow:hidden; }
+    .panel h2 { margin:0; padding:16px 18px; border-bottom:1px solid #dbe3ef; font-size:18px; }
+    .content { padding:16px; }
+    .card { border:1px solid #dbe3ef; border-radius:8px; padding:14px; margin-bottom:12px; background:#fbfdff; cursor:pointer; }
+    .card:hover { border-color:#4f46e5; background:#eef2ff; }
+    .row { display:flex; justify-content:space-between; gap:12px; margin-bottom:8px; }
+    .label { color:#64748b; font-size:13px; }
+    .value { font-weight:700; }
+    .risk { color:#b45309; font-weight:700; }
+    .actions { display:flex; gap:10px; margin-top:16px; }
+    .approve { background:#15803d; }
+    .reject { background:#b91c1c; }
+    pre { white-space:pre-wrap; word-break:break-word; background:#f8fafc; border:1px solid #dbe3ef; border-radius:8px; padding:14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>HITL Review Console</h1>
+      <p>Retail ops approval queue for high-risk agent actions</p>
+    </div>
+    <div class="pill">Live API - enterprise-retail-intelligence</div>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <input id="apiUrl" value="https://retail-ai-platform-gateway-d9qs4nyq.uc.gateway.dev">
+      <input id="reviewer" value="demo-reviewer">
+      <button onclick="loadPending()">Refresh Queue</button>
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Pending Escalations</h2>
+        <div id="pendingList" class="content">Click Refresh Queue.</div>
+      </section>
+
+      <section class="panel">
+        <h2>Escalation Details</h2>
+        <div class="content">
+          <div id="details">Select a pending escalation.</div>
+          <div class="actions">
+            <button id="approveBtn" class="approve" onclick="decide('approve')" disabled>Approve</button>
+            <button id="rejectBtn" class="reject" onclick="decide('reject')" disabled>Reject</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const API_KEY = "retail-ai-mvp-secret-2026";
+    let selected = null;
+
+    function apiBase() {
+      return document.getElementById("apiUrl").value.replace(/\/$/, "");
+    }
+
+    async function api(path, options = {}) {
+      const res = await fetch(apiBase() + path, {
+        ...options,
+        headers: {
+          "X-API-Key": API_KEY,
+          "Content-Type": "application/json",
+          ...(options.headers || {})
+        }
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    }
+
+    function money(v) {
+      return "Rs." + Math.round(v || 0).toLocaleString();
+    }
+
+    async function loadPending() {
+      const box = document.getElementById("pendingList");
+      box.innerHTML = "Loading...";
+      selected = null;
+      document.getElementById("approveBtn").disabled = true;
+      document.getElementById("rejectBtn").disabled = true;
+
+      try {
+        const data = await api("/hitl/pending");
+        if (!data.items || data.items.length === 0) {
+          box.innerHTML = "No pending escalations.";
+          return;
+        }
+
+        box.innerHTML = data.items.map(item => `
+          <div class="card" onclick="selectItem('${item.escalation_id}')">
+            <div class="row">
+              <div>
+                <div class="value">${item.event_type || "action"}</div>
+                <div class="label">Session ${item.session_id || "-"}</div>
+              </div>
+              <div class="risk">Risk ${item.risk_score}</div>
+            </div>
+            <div class="row"><span class="label">Cart total</span><span class="value">${money(item.cart_total)}</span></div>
+            <div class="row"><span class="label">Items</span><span>${item.item_count || 0}</span></div>
+            <div class="row"><span class="label">Due</span><span>${item.approval_due_at || "-"}</span></div>
+          </div>
+        `).join("");
+      } catch (err) {
+        box.innerHTML = "<pre>" + err.message + "</pre>";
+      }
+    }
+
+    async function selectItem(id) {
+      selected = id;
+      const item = await api("/hitl/" + id);
+      const reasons = item.risk_reasons || item.reasons || [];
+
+      document.getElementById("approveBtn").disabled = false;
+      document.getElementById("rejectBtn").disabled = false;
+
+      document.getElementById("details").innerHTML = `
+        <div class="row"><span class="label">Escalation ID</span><span class="value">${item.escalation_id}</span></div>
+        <div class="row"><span class="label">Status</span><span class="value">${item.status}</span></div>
+        <div class="row"><span class="label">Risk score</span><span class="risk">${item.risk_score}</span></div>
+        <div class="row"><span class="label">Query</span><span>${item.query || "-"}</span></div>
+        <div class="row"><span class="label">Cart total</span><span class="value">${money(item.cart_total)}</span></div>
+        <h3>Risk Reasons</h3>
+        <pre>${reasons.length ? reasons.join("\\n") : "No reasons provided."}</pre>
+        <h3>Full Payload</h3>
+        <pre>${JSON.stringify(item, null, 2)}</pre>
+      `;
+    }
+
+    async function decide(action) {
+      if (!selected) return;
+      const reviewer = document.getElementById("reviewer").value || "demo-reviewer";
+      await api("/hitl/" + selected + "/" + action, {
+        method: "POST",
+        body: JSON.stringify({ reviewer })
+      });
+      alert("Escalation " + action + "d.");
+      await loadPending();
+    }
+  </script>
+</body>
+</html>
