@@ -1,0 +1,26 @@
+# Retail AI Platform v6 — Architecture Documentation
+
+**Designed by:** Nadeem Ahmad, Principal Enterprise AI Architect  
+**Implemented by:** Ashifa Nassar, AI Engineer  
+**Platform:** GCP Cloud Run asia-south1  
+**Version:** v6 FINAL (June 2026)
+
+---
+
+## 9-Layer Architecture
+
+| Layer | Component | Purpose |
+|-------|-----------|---------|
+| 1 | Client APP | Web · Mobile · Chat · In-store |
+| 2 | Cloud Load Balancing + Cloud Armor | WAF · DDoS · SSL termination |
+| 3 | API Gateway | JWT auth · Rate limiting · Routing |
+| 4 | Microservices (Cloud Run) | /search + LangGraph Control Plane |
+| 5 | AI Services | Vertex AI Search · Gemini 2.5 Flash · Model Armor |
+| 6 | Data Layer | BigQuery · Firestore · cart_events · policy_chunks |
+| 7 | Data Sources | POS/Pub/Sub · CRM/Datastream · Clickstream/GA4 |
+| 8 | MCP Email | SendGrid · HITL alerts · Order confirm · GDPR consent |
+| 9 | Compliance | Cloud DLP · GDPR · PII tokenisation · Audit logging |
+
+---
+
+## LangGraph Multi-Agent Flow
