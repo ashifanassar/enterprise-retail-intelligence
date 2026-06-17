@@ -217,6 +217,28 @@ Policy RAG over retail policy documents
 Production IAM lockdown
 Monitoring dashboards and alerts
 
+LLM will be triggered on the below basis:
+Example:
+suggest me a red dress under 5000
+Flow:
+/agent
+-> Governor Agent classifies intent = search
+-> Search Executor retrieves products from Vertex AI Search
+-> Generator Agent calls Gemini 2.5 Flash
+-> Gemini generates a grounded recommendation
+
+Policy RAG questions
+Example:
+What is your return policy?
+Can I exchange an item?
+How long does delivery take?
+Flow:
+/agent
+-> Governor Agent classifies intent = policy_question
+-> Policy RAG Node retrieves policy docs from Vertex AI Search
+-> Gemini generates policy answer from retrieved context
+
+
 
 **LLM Not Triggered**
 /health
