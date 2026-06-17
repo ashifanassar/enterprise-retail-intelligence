@@ -2,6 +2,9 @@ Use this as your README.md.
 
 # Enterprise Retail Intelligence
 
+**Problem Statement:**
+Poor Product discovery caused by traditional keyword based search.Customers oftendescribe what they want in natural Language.Product catalogs uses different terminology leading to missed matches,poor customer experiance and lost sales.Designed platform that bridge the gap using semantic search,conversational AI and goverened transaction workflows.
+
 Retail AI commerce MVP built on Google Cloud. The platform demonstrates AI-powered product discovery, conversational commerce, cart transactions, policy enforcement, HITL review, SendGrid notifications, MCP review tools, API Gateway routing, and Firebase-hosted demo UIs.
 
 ## Architecture
