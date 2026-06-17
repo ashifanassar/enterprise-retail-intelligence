@@ -22,6 +22,7 @@ Cloud Run FastAPI Backend
         +--> Pub/Sub for HITL escalation events
         +--> SendGrid for HITL email notifications
         +--> MCP server for programmatic HITL review tools
+
 Main Features
 Semantic product search using Vertex AI Search
 LangGraph multi-agent orchestration
@@ -37,7 +38,8 @@ SendGrid email notification support
 MCP tools for HITL review automation
 API Gateway as API front door
 Firebase Hosting for public demo UI
-Agent Architecture
+
+**Agent Architecture**
 Governor Agent
   -> Search Executor
       -> Generator Agent
@@ -56,7 +58,8 @@ GET    /hitl/{escalation_id}
 POST   /hitl/{escalation_id}/approve
 POST   /hitl/{escalation_id}/reject
 DELETE /session/{session_id}
-Project Structure
+
+**Project Structure**
 app/
   agents/
     cart.py
@@ -190,7 +193,8 @@ Restrict Cloud Run access in production.
 Add Cloud Armor / Load Balancer for enterprise edge security.
 Use least-privilege IAM roles.
 Current Status
-Completed:
+
+**Completed:**
 
 Cloud Run backend
 Vertex AI Search integration
@@ -212,3 +216,22 @@ Full HITL resume-after-approval workflow
 Policy RAG over retail policy documents
 Production IAM lockdown
 Monitoring dashboards and alerts
+
+
+**LLM Not Triggered**
+/health
+/search direct product retrieval
+show my cart
+add item to cart
+remove item from cart
+apply promo
+checkout risk scoring
+HITL approve/reject
+/hitl/pending
+
+
+**cache common policy answers:**
+return policy
+exchange policy
+shipping policy
+promo policy
