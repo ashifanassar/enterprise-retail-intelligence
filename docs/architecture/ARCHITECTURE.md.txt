@@ -1,7 +1,6 @@
 # Retail AI Platform v6 — Architecture Documentation
 
-**Designed by:** Nadeem Ahmad, Principal Enterprise AI Architect  
-**Implemented by:** Ashifa Nassar, AI Engineer  
+
 **Platform:** GCP Cloud Run us-central 
 **Version:** v6 FINAL (June 2026)
 
