@@ -2,7 +2,7 @@
 
 **Designed by:** Nadeem Ahmad, Principal Enterprise AI Architect  
 **Implemented by:** Ashifa Nassar, AI Engineer  
-**Platform:** GCP Cloud Run asia-south1  
+**Platform:** GCP Cloud Run us-central 
 **Version:** v6 FINAL (June 2026)
 
 ---
