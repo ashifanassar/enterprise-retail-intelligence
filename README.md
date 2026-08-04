@@ -7,6 +7,9 @@ Poor Product discovery caused by traditional keyword based search.Customers ofte
 
 Retail AI commerce MVP built on Google Cloud. The platform demonstrates AI-powered product discovery, conversational commerce, cart transactions, policy enforcement, HITL review, SendGrid notifications, MCP review tools, API Gateway routing, and Firebase-hosted demo UIs.
 
+Embedding Model Used:text-embedding-005
+LLM Used: Gemini 2.5 Flash
+
 ## Architecture
 
 ```text
