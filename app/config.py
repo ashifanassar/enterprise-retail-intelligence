@@ -1,15 +1,32 @@
 import os
+
 from dotenv import load_dotenv
+
+
 load_dotenv()
 
-PROJECT_ID    = os.getenv("GCP_PROJECT_ID", "retail-ai-mvp")
-LOCATION      = os.getenv("GCP_LOCATION", "global")
-ENGINE_ID     = os.getenv("VERTEX_SEARCH_ENGINE_ID", "retail-search-app_1778633921898")
-DATA_STORE_ID = os.getenv("VERTEX_SEARCH_DATASTORE_ID", "retail-catalog-store_1778632083248")
+PROJECT_ID = os.getenv("GCP_PROJECT_ID", os.getenv("PROJECT_ID", "retail-ai-mvp"))
+LOCATION = os.getenv("GCP_LOCATION", os.getenv("LOCATION", "global"))
+ENGINE_ID = os.getenv("VERTEX_SEARCH_ENGINE_ID", "retail-search-app_1778633921898")
+DATA_STORE_ID = os.getenv("VERTEX_SEARCH_DATASTORE_ID", "retail-catalog-store")
+SERVING_CONFIG_ID = os.getenv("VERTEX_SEARCH_SERVING_CONFIG_ID", "default_search")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_MODEL  = "gemini-2.5-flash"
-BQ_DATASET    = "retail_mvp"
-BQ_TABLE      = "catalog_dim"
+BQ_DATASET = os.getenv("BQ_DATASET", "retail_mvp")
 API_SECRET_KEY = os.getenv("API_SECRET_KEY", "retail-ai-mvp-secret-2026")
+FIRESTORE_DATABASE = os.getenv("FIRESTORE_DATABASE", "default")
+MODEL_ARMOR_LOCATION = os.getenv("MODEL_ARMOR_LOCATION", "us-central1")
+MODEL_ARMOR_TEMPLATE_ID = os.getenv("MODEL_ARMOR_TEMPLATE_ID", "")
+HITL_REVIEWER_ROLE = os.getenv("HITL_REVIEWER_ROLE", "demo-reviewer / retail ops admin")
+HITL_NOTIFICATION_CHANNEL = os.getenv("HITL_NOTIFICATION_CHANNEL", "Pub/Sub + Firestore queue")
+HITL_APPROVAL_SLA_HOURS = int(os.getenv("HITL_APPROVAL_SLA_HOURS", "2"))
+HITL_EMAIL_PROVIDER = os.getenv("HITL_EMAIL_PROVIDER", "SendGrid")
+POLICY_RAG_SOURCE = os.getenv("POLICY_RAG_SOURCE", "docs/policies/mock-retail-policy-pack")
+POLICY_RAG_DATASTORE_ID = os.getenv("POLICY_RAG_DATASTORE_ID", "")
+POLICY_RAG_LOCATION = os.getenv("POLICY_RAG_LOCATION", "global")
+POLICY_RAG_SERVING_CONFIG_ID = os.getenv("POLICY_RAG_SERVING_CONFIG_ID", "default_config")
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY", "")
-NOTIFICATION_EMAIL = os.getenv("NOTIFICATION_EMAIL", "nadeem.ahmad.arch@gmail.com")
+SENDGRID_FROM_EMAIL = os.getenv("SENDGRID_FROM_EMAIL", "")
+SENDGRID_FROM_NAME = os.getenv("SENDGRID_FROM_NAME", "Retail AI HITL")
+HITL_REVIEWER_EMAIL = os.getenv("HITL_REVIEWER_EMAIL", "")
+API_VERSION = "1.0.0"

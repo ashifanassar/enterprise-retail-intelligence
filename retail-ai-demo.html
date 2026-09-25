@@ -187,15 +187,41 @@
     }
 
     .product {
-      min-height: 80px;
+      min-height: 96px;
       padding: 14px 13px;
       border: 1px solid #e2e7ee;
       border-radius: 8px;
       background: #fafbfc;
       display: grid;
-      grid-template-columns: 1fr auto;
+      grid-template-columns: 72px 1fr auto;
       gap: 12px;
       margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #edf1f6;
+      border: 1px solid #e0e6ee;
+    }
+
+    .thumb[hidden] {
+      display: none;
+    }
+
+    .fallback-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #edf1f6, #f9fafc);
+      color: #738095;
+      font-weight: 800;
+      border: 1px solid #e0e6ee;
     }
 
     .title {
@@ -244,6 +270,44 @@
       display: grid;
       grid-template-columns: 1fr 56px;
       gap: 8px;
+    }
+
+    .voicebar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .voicebar button {
+      width: auto;
+      min-width: 92px;
+      padding: 0 13px;
+    }
+
+    .voicebar button.listening {
+      background: #b42318;
+    }
+
+    .voice-status {
+      min-height: 20px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toggle {
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      color: #394355;
+      font-size: 13px;
+    }
+
+    .toggle input {
+      width: 16px;
+      height: 16px;
+      padding: 0;
     }
 
     .answer {
@@ -316,14 +380,23 @@
 
       <section>
         <div class="section-head">
-          <span>🤖 /agent — LangGraph Multi-Agent</span>
-          <span class="pill purple">Grounded on BigQuery</span>
+          <span>💬 /agent — LangGraph Voice + Chat</span>
+          <span class="pill purple">Grounded agent flow</span>
         </div>
         <div class="content">
-          <div class="chat-note">Search complete — ask a follow-up question...</div>
+          <div class="chat-note">Ask by typing or voice. The same agent handles search, cart, policy RAG, and HITL routing.</div>
           <div class="chatbar">
             <input id="chatQuery" value="suggest me the best option under ₹4000" aria-label="Chat query" />
             <button id="chatBtn" class="secondary">Ask</button>
+          </div>
+          <div class="voicebar">
+            <button id="voiceBtn" type="button">Start Voice</button>
+            <button id="stopVoiceBtn" type="button" disabled>Stop</button>
+            <label class="toggle">
+              <input id="speakToggle" type="checkbox" checked />
+              Speak response
+            </label>
+            <span id="voiceStatus" class="voice-status">Voice uses the same /agent workflow.</span>
           </div>
           <div class="guard">✅ Gemini checks live BigQuery inventory before answering — no hallucination</div>
           <div id="answer" class="answer" hidden></div>
@@ -333,9 +406,12 @@
   </main>
 
   <script>
-    const API_BASE = "https://retail-ai-platform-gateway-d9qs4nyq.uc.gateway.dev";
+    const API_BASE = "https://retail-ai-api-1039944541778.us-central1.run.app";
     const API_KEY = "retail-ai-mvp-secret-2026";
     const ID_TOKEN = "";
+    const SESSION_ID = `voice-demo-${Date.now()}`;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = SpeechRecognition ? new SpeechRecognition() : null;
 
     const headers = () => {
       const h = {
@@ -351,8 +427,18 @@
       return `₹${Math.round(number).toLocaleString("en-IN")}`;
     };
 
+    const initials = product => {
+      const text = product.title || product.category || product.sku_id || "?";
+      return text.trim().slice(0, 2).toUpperCase();
+    };
+
     const productHtml = product => `
       <div class="product">
+        ${product.image_url ? `
+          <img class="thumb" src="${product.image_url}" alt="${product.title || "Product image"}"
+            onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+          <div class="fallback-thumb" hidden>${initials(product)}</div>
+        ` : `<div class="fallback-thumb">${initials(product)}</div>`}
         <div>
           <div class="title">${product.title || product.sku_id || "Untitled product"}</div>
           <div class="meta">${product.brand || "Brand"} · ${product.category || "Category"}</div>
@@ -385,7 +471,7 @@
         const res = await fetch(`${API_BASE}/search`, {
           method: "POST",
           headers: headers(),
-          body: JSON.stringify({ query: `${document.getElementById("query").value}. ${query}` })
+          body: JSON.stringify({ query })
         });
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
@@ -401,43 +487,117 @@
       }
     }
 
-    async function chat() {
+    function speak(text) {
+      if (!document.getElementById("speakToggle").checked || !("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-IN";
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    async function agentAsk(query, source = "text") {
       const btn = document.getElementById("chatBtn");
       const answer = document.getElementById("answer");
-      const query = document.getElementById("chatQuery").value.trim();
+      const voiceStatus = document.getElementById("voiceStatus");
       if (!query) return;
 
       btn.disabled = true;
       answer.hidden = false;
-      answer.textContent = "Routing through agents...";
+      answer.textContent = source === "voice" ? "Listening complete. Agent is thinking..." : "Agent is thinking...";
+      voiceStatus.textContent = "Sending request to LangGraph agent...";
 
-        try {
-    const res = await fetch(`${API_BASE}/agent`, {
-      method: "POST",
-      headers: headers(),
-      body: JSON.stringify({
-        session_id: "demo-session",
-        query
-      })
-    });
-           if (!res.ok) throw new Error(await res.text());
+      try {
+        const res = await fetch(`${API_BASE}/agent`, {
+          method: "POST",
+          headers: headers(),
+          body: JSON.stringify({ session_id: SESSION_ID, query })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        const responseText = data.response || "No response returned.";
+        const riskReasons = (data.risk_reasons || []).length
+          ? `\nrisk_reasons=${data.risk_reasons.join("; ")}`
+          : "";
+        answer.textContent = [
+          responseText,
+          "",
+          `intent=${data.intent || "unknown"} · action=${data.action || "none"} · ${data.latency_ms || 0}ms`,
+          `risk_score=${data.risk_score ?? 0} · hitl_required=${Boolean(data.hitl_required)} · policy_status=${data.policy_status || "n/a"}`,
+          `pii_detected=${Boolean(data.pii_detected)} · escalation_id=${data.escalation_id || "n/a"}${riskReasons}`
+        ].join("\n");
+        voiceStatus.textContent = "Agent response ready.";
+        speak(responseText);
+      } catch (err) {
+        answer.textContent = `Agent failed: ${err.message}`;
+        voiceStatus.textContent = "Voice request failed.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
 
-    const data = await res.json();
+    async function chat() {
+      const query = document.getElementById("chatQuery").value.trim();
+      if (!query) return;
+      agentAsk(query);
+    }
 
-    answer.textContent =
-      `${data.response}\n\n` +
-      `intent=${data.intent}` +
-      ` · action=${data.action || "none"}` +
-      ` · risk_score=${data.risk_score || 0}` +
-      ` · hitl_required=${data.hitl_required || false}` +
-      ` · pii_detected=${data.pii_detected || false}`;
+    function setupVoice() {
+      const voiceBtn = document.getElementById("voiceBtn");
+      const stopVoiceBtn = document.getElementById("stopVoiceBtn");
+      const voiceStatus = document.getElementById("voiceStatus");
 
-  } catch (err) {
-    answer.textContent = `Agent failed: ${err.message}`;
-  } finally {
-    btn.disabled = false;
-  }
-}
+      if (!recognition) {
+        voiceBtn.disabled = true;
+        voiceStatus.textContent = "Voice recognition is not supported in this browser. Use Chrome or Edge.";
+        return;
+      }
+
+      recognition.lang = "en-IN";
+      recognition.interimResults = true;
+      recognition.continuous = false;
+
+      recognition.onstart = () => {
+        voiceBtn.classList.add("listening");
+        voiceBtn.textContent = "Listening...";
+        voiceBtn.disabled = true;
+        stopVoiceBtn.disabled = false;
+        voiceStatus.textContent = "Listening. Ask about products, cart, checkout, or policies.";
+      };
+
+      recognition.onresult = event => {
+        let transcript = "";
+        for (let i = event.resultIndex; i < event.results.length; i += 1) {
+          transcript += event.results[i][0].transcript;
+        }
+        document.getElementById("chatQuery").value = transcript.trim();
+        voiceStatus.textContent = `Heard: ${transcript.trim()}`;
+
+        const latest = event.results[event.results.length - 1];
+        if (latest.isFinal) {
+          agentAsk(transcript.trim(), "voice");
+        }
+      };
+
+      recognition.onerror = event => {
+        voiceStatus.textContent = `Voice error: ${event.error}`;
+      };
+
+      recognition.onend = () => {
+        voiceBtn.classList.remove("listening");
+        voiceBtn.textContent = "Start Voice";
+        voiceBtn.disabled = false;
+        stopVoiceBtn.disabled = true;
+      };
+
+      voiceBtn.addEventListener("click", () => {
+        window.speechSynthesis?.cancel();
+        recognition.start();
+      });
+
+      stopVoiceBtn.addEventListener("click", () => recognition.stop());
+    }
 
     document.getElementById("searchBtn").addEventListener("click", search);
     document.getElementById("chatBtn").addEventListener("click", chat);
@@ -449,6 +609,7 @@
     });
 
     health();
+    setupVoice();
   </script>
 </body>
 </html>

@@ -1,6 +1,10 @@
+from langsmith import traceable
+
 from app.agents.state import GraphState
 from app.search import search_products
 
+
+@traceable(name="Search Executor")
 def search_executor_node(state: GraphState) -> GraphState:
     try:
         result = search_products(state["query"], session_id=state.get("session_id"))

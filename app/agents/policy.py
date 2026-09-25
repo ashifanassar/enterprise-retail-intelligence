@@ -1,3 +1,5 @@
+from langsmith import traceable
+
 from app.agents.hitl import create_hitl_escalation
 from app.agents.state import GraphState
 from app.dlp import redact_pii
@@ -6,6 +8,7 @@ from app.dlp import redact_pii
 HITL_THRESHOLD = 0.8
 
 
+@traceable(name="Policy HITL Node")
 def policy_node(state: GraphState) -> GraphState:
     risk_score = float(state.get("risk_score") or 0)
     risk_reasons = state.get("risk_reasons", [])

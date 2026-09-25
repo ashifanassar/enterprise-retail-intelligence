@@ -1,16 +1,24 @@
-from typing import TypedDict, Optional, List
+from typing import Any, Literal, TypedDict
 
-class GraphState(TypedDict):
-    query:              str
-    intent:             str
-    products:           list
-    response:           str
-    session_id:         str
-    history:            list
-    latency_ms:         int
-    error:              Optional[str]
-    hitl_required:      Optional[bool]
-    risk_score:         Optional[float]
-    hitl_reasons:       Optional[List[str]]
-    hitl_event_id:      Optional[str]
-    rag_chunks_used:    Optional[int]
+
+Intent = Literal["search", "transact", "casual_chat", "policy_question"]
+
+
+class GraphState(TypedDict, total=False):
+    query: str
+    intent: Intent
+    products: list[dict[str, Any]]
+    response: str
+    session_id: str
+    history: list[dict[str, str]]
+    latency_ms: int
+    error: str | None
+    hitl_required: bool | None
+    risk_score: float | None
+    risk_reasons: list[str]
+    policy_status: str | None
+    action: str | None
+    cart: dict[str, Any]
+    pii_detected: bool
+    escalation_id: str | None
+    policy_sources: list[dict[str, Any]]
