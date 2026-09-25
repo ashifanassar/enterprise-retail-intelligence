@@ -2,14 +2,41 @@ Use this as your README.md.
 
 # Enterprise Retail Intelligence
 
-**Problem Statement:**
-Poor Product discovery caused by traditional keyword based search.Customers often describe what they want in natural Language.Product catalogs uses different terminology leading to missed matches,poor customer experiance and lost sales.Designed platform that bridge the gap using semantic search,conversational AI and goverened transaction workflows.
+## Problem Statement
 
-Retail AI commerce MVP built on Google Cloud. The platform demonstrates AI-powered product discovery, conversational commerce, cart transactions, policy enforcement, HITL review, SendGrid notifications, MCP review tools, API Gateway routing, and Firebase-hosted demo UIs.
+Traditional keyword-based product search often fails when customers describe what they want in natural language. Product catalogs may use different terminology than customers, which leads to missed matches, poor customer experience, and lost sales.
 
+This project solves that problem using semantic product discovery, conversational AI, policy-aware transaction flows, HITL governance, and agent observability.
+
+
+## Overview
+
+Enterprise Retail Intelligence is a Retail AI commerce MVP built on Google Cloud.
+
+The platform demonstrates:
+
+- AI-powered product discovery
+- Conversational shopping assistant
+- Browser-based voice conversational UI
+- Cart transactions
+- Policy RAG over retail policy documents
+- HITL approval workflow
+- SendGrid notification path
+- MCP review tools
+- LangSmith agent tracing
+- API Gateway routing
+- Firebase-hosted demo UI
+
+  
+**AI Stack:**
 Embedding Model Used:text-embedding-005
 LLM Used: Gemini 2.5 Flash
-
+Product Retrieval: Vertex AI Search
+Policy RAG: Vertex AI Search data store over policy documents
+Agent Orchestration: LangGraph
+Agent Observability: LangSmith
+Data Grounding: BigQuery
+Operational State: Firestore
 ## Architecture
 
 ```text
@@ -28,6 +55,7 @@ Cloud Run FastAPI Backend
         +--> Pub/Sub for HITL escalation events
         +--> SendGrid for HITL email notifications
         +--> MCP server for programmatic HITL review tools
+        +--> LangSmith for agent tracing
 
 Main Features
 Semantic product search using Vertex AI Search
